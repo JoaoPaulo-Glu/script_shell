@@ -65,12 +65,16 @@ if [[ "$MX" == *"mail.$DOMINIO"* ]]; then
     if [ -n "$BL_HOSTING" ]; then
         echo "O cliente está com bloqueio de blocklist_hosting"
         bloqueio_detectado=1
+    else
+        echo "Não há bloqueio de blocklist_hosting"
     fi
 
     POL=$(grep "$DOMINIO" /var/log/exim_mainlog | grep "AUP#POL")
     if [ -n "$POL" ]; then
         echo "O cliente está com bloqueio de AUP#POL"
         bloqueio_detectado=1
+    else
+        echo "Não há bloqueio de AUP#POL"
     fi
 
     # Mostra últimas 9 linhas do log se houver bloqueios
@@ -85,4 +89,4 @@ fi
 
 # Executa scripts finais
 /scripts/mailperm "$USER"
-/scripts/remove_dovecot_index --user "$USER"
+/scripts/remove_dovecot_index_files --user "$USER"
