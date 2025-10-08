@@ -73,6 +73,41 @@ _validaServer(){
     fi
 }
 
+# Função para mostrar sistema operacional
+show_os() {
+    echo "=== SISTEMA OPERACIONAL ==="
+    
+    if [[ -f "/etc/os-release" ]]; then
+        local os_name
+        os_name=$(grep ^PRETTY_NAME /etc/os-release | cut -d= -f2- | tr -d '"')
+        echo -e "${GREEN}Sistema Operacional:${NC} $os_name"
+    else
+        echo -e "${YELLOW}Arquivo /etc/os-release não encontrado${NC}"
+        
+        # Tentativas alternativas
+        if [[ -f "/etc/redhat-release" ]]; then
+            echo -e "${GREEN}Distribuição:${NC} $(cat /etc/redhat-release)"
+        elif [[ -f "/etc/issue" ]]; then
+            echo -e "${GREEN}Distribuição:${NC} $(cat /etc/issue | head -1)"
+        fi
+    fi
+    
+    echo -e "${GREEN}Kernel:${NC} $(uname -r)"
+    echo -e "${GREEN}Arquitetura:${NC} $(uname -m)"
+    echo -e "${GREEN}Hostname:${NC} $(hostname)"
+    
+    # Informações adicionais úteis
+    echo ""
+    echo "=== INFORMAÇÕES ADICIONAIS ==="
+    if command -v lsb_release &> /dev/null; then
+        echo -e "${GREEN}LSB Release:${NC} $(lsb_release -d | cut -f2)"
+    fi
+    
+    if command -v uptime &> /dev/null; then
+        echo -e "${GREEN}Uptime:${NC} $(uptime -p | sed 's/up //')"
+    fi
+}
+
 # Função de ajuda
 show_help() {
     echo "Uso: $0 [OPÇÕES]"
@@ -86,6 +121,7 @@ show_help() {
     echo "  --500_webmail USER         Corrige erro 404/500 no webmail"
     echo "  --backup_infect USER DIR   Verifica backups por malwares"
     echo "  --excludemsg CONTA         Mostra logs de exclusão de mensagens"
+    echo "  --so                       Mostra informações do sistema operacional"
     echo "  -h, --help                 Mostra esta ajuda"
     echo ""
     echo "Exemplos:"
@@ -97,6 +133,7 @@ show_help() {
     echo "  $0 --500_webmail joao"
     echo "  $0 --backup_infect joao public_html"
     echo "  $0 --excludemsg conta@dominio.com"
+    echo "  $0 --so"
     exit 0
 }
 
@@ -533,6 +570,9 @@ main() {
     case "$1" in
         -h|--help)
             show_help
+            ;;
+        --so)
+            show_os
             ;;
         --inodes)
             if [[ $# -ne 3 ]]; then
